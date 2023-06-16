@@ -1,0 +1,11 @@
+# Dependency directories
+node_modules/
+
+# Compiled output
+build/
+dist/
+
+# Development server files
+.DS_Store
+.env
+
