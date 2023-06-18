@@ -4,8 +4,8 @@ import { Schema } from "mongoose";
 // Create Comment Schema
 const commentSchema = new mongoose.Schema({
   author: [{ type: Schema.Types.ObjectId, enum: ["teacher", "parent"] }],
-  text: { type: String, required: true },
-  name: { type: String },
+  content: { type: String, required: true },
+  // name: { type: String },
   avatar: { type: String },
   date: { type: Date, default: Date.now },
 });

@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import Observation from "../models/observationModel.js";
 import Student from "../models/studentModel.js";
+import Parent from "../models/parentModel.js";
 
+// POST new observation
 const createObservation = async (req: Request, res: Response) => {
   try {
     const { title, content, students, type, status, images } = req.body;
@@ -25,16 +27,30 @@ const createObservation = async (req: Request, res: Response) => {
   }
 };
 
-const getAllObservations = async (req: Request, res: Response) => {
+// GET all observations (girls, boys, single, group (gender or too much?), tags)
+const getObservations = async (req: Request, res: Response) => {
   try {
-    const allObservations = await Observation.find({});
-    return res.status(200).json(allObservations);
+    const gender = req.params.gender.toLowerCase();
+    // const tags = req.params.tags.toLowerCase();
+    console.log("Gender is", gender);
+    if (gender === "girls") {
+      const girls = await Observation.find()
+        .populate({ path: "students", match: { gender: "female" } })
+        .exec();
+      console.log("Girls observation", girls);
+      return res.status(200).json(girls);
+    } else {
+      const observations = await Observation.find({});
+      console.log("No girls");
+      return res.status(200).json(observations);
+    }
   } catch (err) {
-    console.log(err);
+    console.log("Error", err);
     return res.status(500).send({ error: err });
   }
 };
 
+// GET observation by id
 const getObservation = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -46,13 +62,21 @@ const getObservation = async (req: Request, res: Response) => {
   }
 };
 
+// GET observations by filters (student, gender, tags)
+const getFilteredObservations = async (req: Request, res: Response) => {
+  try {
+  } catch (error) {}
+};
+
+// PUT edit observation
 const editObservation = async (req: Request, res: Response) => {
   try {
-    const text = req.body.text;
+    const content = req.body.content;
     const id = req.params.id;
     const observation = await Observation.findByIdAndUpdate(id, {
-      text: text,
+      content: content,
     });
+    await observation?.save();
     return res
       .status(200)
       .json({ message: "Observation updated", observation });
@@ -62,12 +86,14 @@ const editObservation = async (req: Request, res: Response) => {
   }
 };
 
+// PUT change observation status
 const publishObservation = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const observation = await Observation.findByIdAndUpdate(id, {
       status: "published",
     });
+    await observation?.save();
     return res.status(200).json({ message: "Ready to publish", observation });
   } catch (err) {
     console.log(err);
@@ -75,14 +101,77 @@ const publishObservation = async (req: Request, res: Response) => {
   }
 };
 
+// PUT add students to observation
 const addStudents = async (req: Request, res: Response) => {
   try {
-    const studentIds = req.body.studentIds;
+    const studentName = req.body.studentName;
+    const student = await Student.findOne({ name: studentName });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    const studentId = student._id;
     const observation = await Observation.findByIdAndUpdate(
       req.params.id,
       {
         $addToSet: {
-          students: { $each: studentIds },
+          students: studentId,
+          // students: { $each: studentId },
+        },
+      },
+      { new: true }
+    );
+
+    if (!observation) {
+      return res.status(400).json({ message: "Observation not found" });
+    }
+
+    console.log("Updated observation", observation);
+    await observation.save();
+
+    // Update the students' observations field:
+    await Student.updateMany(
+      { _id: { $in: studentId } },
+      { $addToSet: { observations: observation._id } }
+    );
+
+    console.log("Student updated successfully");
+
+    return res
+      .status(200)
+      .json({ message: "Students added to observation", observation });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ msg: "Server error" });
+  }
+};
+
+// PUT add type
+const addType = async (req: Request, res: Response) => {
+  try {
+    const type = req.body.type;
+    const observation = await Observation.findByIdAndUpdate(req.params.id, {
+      type: type,
+    });
+    if (!observation) {
+      return res.status(400).json({ message: "Observation not found" });
+    }
+    await observation.save();
+    return res.status(200).json({ message: "Type added", observation });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server error");
+  }
+};
+
+// PUT add tags
+const addTags = async (req: Request, res: Response) => {
+  try {
+    const tags = req.body.tags;
+    const observation = await Observation.findByIdAndUpdate(
+      req.params.id,
+      {
+        $addToSet: {
+          tags: { $each: tags },
         },
       },
       { new: true }
@@ -92,50 +181,48 @@ const addStudents = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Observation not found" });
     }
     await observation.save();
+    return res.status(200).send(observation);
 
     // Update the students' observations field:
-    await Student.updateMany(
-      { _id: { $in: studentIds } },
-      { $addToSet: { observations: observation._id } }
-    );
+    // await Student.updateMany(
+    //   { _id: { $in: studentIds } },
+    //   { $addToSet: { observations: observation._id } }
+    // );
 
-    return res
-      .status(200)
-      .json({ message: "Students added to observation", observation });
+    // return res
+    //   .status(200)
+    //   .json({ message: "Students added to observation", observation });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ msg: "Choose a student" });
+    res.status(500).send(err);
   }
 };
 
-const addType = async (req: Request, res: Response) => {
-  try {
-    // Select type and add to observation
-  } catch (error) {}
+// PUT add likes
+const likeObservation = async (req: Request, res: Response) => {
+  //   try {
+  //     const observation = await Observation.findById(req.params.id);
+  //     if (!observation) {
+  //       return res.status(400).json({ msg: "Observation not found" });
+  //     }
+  //     // Compare liked user with logged in user to see if the users are the same
+  //     if (
+  //       observation.likes.filter((like) => like.id === req.user.id).length > 0
+  //       // observation.likes.filter((like) => like.user?.toString() === req.user.id)
+  //       //   .length > 0
+  //     ) {
+  //       return res.status(400).json({ msg: "Observation already liked" });
+  //     }
+  //     observation.likes.unshift({ user: req.user.id });
+  //     await observation?.save();
+  //     res.json(observation.likes);
+  //   } catch (error) {
+  //     console.log(error);
+  //     res.status(500).send("Server error");
+  //   }
 };
 
-// const likeObservation = async (req: Request, res: Response) => {
-//   try {
-//     const observation = await Observation.findById(req.params.id);
-//     if (!observation) {
-//       return res.status(400).json({ msg: "Observation not found" });
-//     }
-//     // Compare liked user with logged in user to see if the users are the same
-//     if (
-//       observation.likes.filter((like) => like.user?.toString() === req.user.id)
-//         .length > 0
-//     ) {
-//       return res.status(400).json({ msg: "Observation already liked" });
-//     }
-//     observation.likes.unshift({ user: req.user.id });
-//     await observation.save();
-//     res.json(observation.likes);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Server error");
-//   }
-// };
-
+//// DELETE likes
 // const unlikeObservation = async (req: Request, res: Response) => {
 //   try {
 //     const observation = await Observation.findById(req.params.id);
@@ -163,6 +250,7 @@ const addType = async (req: Request, res: Response) => {
 //   }
 // };
 
+//// PUT add comments
 // BOTH parents and teacher should be able to comment on posts
 // const commentObservation = async (req: Request, res: Response) => {
 //   try {
@@ -170,7 +258,7 @@ const addType = async (req: Request, res: Response) => {
 //     const user = await Parent.findById(req.user.id);
 
 //     const newComment = {
-//       text: req.body.text,
+//       content: req.body.content,
 //       name: user.name,
 //       avatar: user.avatar,
 //       user: req.user.id,
@@ -186,14 +274,15 @@ const addType = async (req: Request, res: Response) => {
 // };
 
 export {
-  getAllObservations,
+  getObservations,
   getObservation,
   createObservation,
   editObservation,
   publishObservation,
   addStudents,
   addType,
-  // likeObservation,
+  addTags,
+  likeObservation,
   // unlikeObservation,
   // commentObservation,
 };
