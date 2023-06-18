@@ -6,7 +6,7 @@ import {
   editObservation,
   publishObservation,
   addStudents,
-  addType,
+  selectType,
   addTags,
   likeObservation,
   // unlike,
@@ -14,7 +14,7 @@ import {
   // uncomment
 } from "../controllers/observationController.js";
 
-// Sample Tags: ["Tag 1", "Tag 2", "Tag 3", "Tag 4"]
+// Sample Tags: ["language", "math", "music"]
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ router.post("/", createObservation);
 router.get("/:gender", getObservations);
 router.get("/:id", getObservation);
 router.put("/:id", editObservation);
-router.put("/type/:id", addType);
+router.put("/type/:id", selectType);
 // router.put("/:id/type", addType); //keeps spinning
 router.put("/:id/add-students", addStudents);
 router.put("/:id/tags/addtags", addTags);

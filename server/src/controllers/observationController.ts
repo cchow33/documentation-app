@@ -12,7 +12,7 @@ const createObservation = async (req: Request, res: Response) => {
       title,
       content,
       students: [],
-      type: "single",
+      type,
       status: "saved",
       images: [],
       author: "648ed7c4fa6ad629ba8cdb65",
@@ -146,16 +146,20 @@ const addStudents = async (req: Request, res: Response) => {
   }
 };
 
-// PUT add type
-const addType = async (req: Request, res: Response) => {
+// PUT select type
+const selectType = async (req: Request, res: Response) => {
   try {
     const type = req.body.type;
-    const observation = await Observation.findByIdAndUpdate(req.params.id, {
-      type: type,
-    });
+    const observation = await Observation.findByIdAndUpdate(
+      req.params.id,
+      { type },
+      { new: true }
+    );
+
     if (!observation) {
       return res.status(400).json({ message: "Observation not found" });
     }
+    console.log("Type is:", observation.type);
     await observation.save();
     return res.status(200).json({ message: "Type added", observation });
   } catch (error) {
@@ -281,7 +285,7 @@ export {
   editObservation,
   publishObservation,
   addStudents,
-  addType,
+  selectType,
   addTags,
   likeObservation,
   // unlikeObservation,
