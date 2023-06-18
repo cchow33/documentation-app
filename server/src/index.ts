@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = 5000;
 
-// Middleware
+// Init Middleware
 app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
@@ -30,7 +30,6 @@ app.use("/api/auth", authRoutes);
 console.log(process.env.MONGO_URI);
 
 mongoose
-  // .connect(mongoUri)
   .connect(process.env.MONGO_URI ?? "")
   .then(() => {
     app.listen(PORT, () => {

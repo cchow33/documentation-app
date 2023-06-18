@@ -4,9 +4,9 @@ import { Schema } from "mongoose";
 // Observation Schema
 const observationSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  text: { type: String, required: true },
-  author: [{ type: Schema.Types.ObjectId, ref: "Teacher" }],
-  students: [{ student: { type: Schema.Types.Array, ref: "Student" } }],
+  content: { type: String, required: true },
+  author: { type: Schema.Types.ObjectId, ref: "Teacher" },
+  students: [{ type: Schema.Types.ObjectId, ref: "Student" }],
   tags: { type: Array<String> },
   type: { type: String, enum: ["single", "group"], required: true },
   classroom: { type: String },

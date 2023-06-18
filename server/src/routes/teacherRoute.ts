@@ -1,8 +1,15 @@
 import express from "express";
-import { myProfile } from "../controllers/teacherController.js";
+import {
+  getProfile,
+  getProfiles,
+  createTeacher,
+} from "../controllers/teacherController.js";
 
 const router = express.Router();
 
-router.get("/", myProfile);
+//localhost:5000/api/teachers
+router.post("/", createTeacher);
+router.get("/", getProfiles);
+router.get("/:id", getProfile);
 
 export default router;

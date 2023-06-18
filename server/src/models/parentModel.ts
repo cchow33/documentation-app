@@ -8,6 +8,7 @@ const parentSchema = new mongoose.Schema({
   // email: { type: String, required: true, unique: true },
   // password: { type: String, required: true },
   child: { type: String, required: true },
+  avatar: { type: String, required: true },
   student_info: [{ type: Schema.Types.ObjectId, ref: "Student" }], // should be a string right??
 });
 

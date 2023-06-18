@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
 import Parent from "../models/parentModel.js";
+import Observation from "../models/observationModel.js";
 
 // Do we need this?? Or just automatically create parent once child is created
 
 const createParent = async (req: Request, res: Response) => {
   try {
-    const { name, email, child } = req.body;
+    const { name, email, child, avatar } = req.body;
 
     const parent = await Parent.create({
       name,
       email,
       child,
+      avatar,
     });
     await parent.save();
     return res.status(200).json(parent);
