@@ -17,6 +17,7 @@ const createObservation = async (req: Request, res: Response) => {
       images: [],
       author: "648ed7c4fa6ad629ba8cdb65",
       likes: [],
+      tags: [],
       // avatar,
     });
     await observation.save();
