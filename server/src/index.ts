@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("tiny"));
 
-// Routes
+// Routes localhost:5000/
 app.use("/api/students", studentRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/observations", observationRoutes);

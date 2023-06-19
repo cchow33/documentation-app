@@ -36,9 +36,17 @@ const getObservations = async (req: Request, res: Response) => {
     console.log("Gender is", gender);
     if (gender === "girls") {
       const girls = await Observation.find()
-        .populate({ path: "students", match: { gender: "female" } })
+        .populate({
+          path: "students",
+          match: { gender: "female" },
+          select: "name",
+        })
         .exec();
-      console.log("Girls observation", girls);
+      console.log(
+        "Girls observation",
+        girls
+        // girls.map((obs) => obs.students.map((student) => student.name))
+      );
       return res.status(200).json(girls);
     } else {
       const observations = await Observation.find({});
@@ -63,8 +71,14 @@ const getObservation = async (req: Request, res: Response) => {
   }
 };
 
-// GET observations by filters (student, gender, tags)
-const getFilteredObservations = async (req: Request, res: Response) => {
+// // GET observations by filters (student, gender, tags)
+// const getFilteredObservations = async (req: Request, res: Response) => {
+//   try {
+//   } catch (error) {}
+// };
+
+// GET observations by learning tags
+const getObservationsByTags = async (req: Request, res: Response) => {
   try {
   } catch (error) {}
 };
@@ -290,4 +304,5 @@ export {
   likeObservation,
   // unlikeObservation,
   // commentObservation,
+  getObservationsByTags,
 };

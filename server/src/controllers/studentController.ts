@@ -27,7 +27,7 @@ const createStudent = async (req: Request, res: Response) => {
   }
 };
 
-// GET all students
+// GET student - male, female, or all
 const getStudents = async (req: Request, res: Response) => {
   try {
     const filters = req.params.studentFilters.toLowerCase();
@@ -53,12 +53,17 @@ const getStudents = async (req: Request, res: Response) => {
   }
 };
 
-// GET student by name
+// GET/POST student by name
 const getStudent = async (req: Request, res: Response) => {
   try {
-    const name = req.body.name.toLowerCase();
-    const student = await Student.findOne({ name });
-    return res.status(200).json(student);
+    const name = req.body.name;
+    console.log("Studnet name", name);
+    const student = await Student.findOne({ name }).populate("observations");
+    if (!student) {
+      return res.status(404).json({ msg: "Student not found" });
+    }
+    console.log(student);
+    return res.status(200).json({ student: student, id: student._id });
   } catch (err) {
     console.log(err);
     return res.status(500).send({ error: err });

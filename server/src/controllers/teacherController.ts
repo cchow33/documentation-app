@@ -31,35 +31,6 @@ const getProfiles = async (req: Request, res: Response) => {
   }
 };
 
-// Create new teacher
-const createTeacher = async (req: Request, res: Response) => {
-  try {
-    const { name, avatar, email, password, school, classroom } = req.body;
-    // const { email, uid } = req.body;
-    // Create new user doc in MongoDB with firebaseUID
-    const teacher = await Teacher.create({
-      // _id: id,
-      // _id: uid,
-      role: "teacher",
-      name,
-      avatar,
-      email,
-      password,
-      school,
-      classroom,
-      students: [],
-      observations: [],
-      notes: [],
-    });
-    await teacher.save();
-    console.log("New user", teacher);
-    return res.status(200).json(teacher);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ error: error });
-  }
-};
-
 // VERIFY existing user
 const verifyTeacher = async (req: Request, res: Response) => {
   try {
@@ -72,4 +43,4 @@ const verifyTeacher = async (req: Request, res: Response) => {
   }
 };
 
-export { getProfile, createTeacher, getProfiles, verifyTeacher };
+export { getProfile, getProfiles, verifyTeacher };
