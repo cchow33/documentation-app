@@ -6,6 +6,8 @@ import Parent from "../models/parentModel.js";
 // POST new observation
 const createObservation = async (req: Request, res: Response) => {
   try {
+    // Need to add observation to teacher and student
+    const { id } = req.params;
     const { title, content, students, type, status, images } = req.body;
     const observation = await Observation.create({
       date: Date.now(),
@@ -15,7 +17,7 @@ const createObservation = async (req: Request, res: Response) => {
       type,
       status: "saved",
       images: [],
-      author: "648ed7c4fa6ad629ba8cdb65",
+      author: "",
       likes: [],
       tags: [],
       // avatar,

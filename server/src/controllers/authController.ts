@@ -74,12 +74,16 @@ export const verifyUser = async (req: Request, res: Response) => {
 export const getUserData = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log("User Id", id);
     const teacher = await Teacher.findById(id);
     const parent = await Parent.findById(id);
+    const student = await Student.findOne({ id: id });
     if (teacher) {
       await Teacher.findById(id).populate("observations").populate("students");
       return res.status(200).json(teacher);
+    }
+    if (student) {
+      await Student.findById(id).populate("observations");
+      return res.status(200).json(student);
     } else if (parent) {
       // Find parent's child:
       const child = await Student.findOne({ parent: parent._id });
@@ -88,7 +92,7 @@ export const getUserData = async (req: Request, res: Response) => {
           path: "childsObservations",
           populate: {
             path: "observations",
-            match: { students: child._id },
+            match: { child: child._id },
           },
         });
       }
