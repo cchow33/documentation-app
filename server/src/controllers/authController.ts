@@ -4,8 +4,8 @@ import Student from "../models/studentModel.js";
 import User from "../models/userModel.js";
 import { Request, Response } from "express";
 
-// CREATE new user - later pass in "uid"
-export const createUser = async (req: Request, res: Response) => {
+// SIGNUP
+export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
     if (role === "teacher") {
@@ -26,13 +26,14 @@ export const createUser = async (req: Request, res: Response) => {
       return res.status(200).json({ msg: "Teacher created", teacher });
     }
     if (role === "parent") {
+      // else {
       const parent = await Parent.create({
         name,
         password,
         role: "parent",
         email,
         avatar: "",
-        child: "",
+        // child: {},
         comments: [],
         likes: [],
         childsObservations: [],
@@ -47,11 +48,11 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-// Verify User - uid
-export const verifyUser = async (req: Request, res: Response) => {
+// LOGIN
+export const login = async (req: Request, res: Response) => {
   try {
-    const { name, email } = req.body;
-    console.log(name, email);
+    const { email, password } = req.body;
+    console.log(email, password);
     const teacher = await Teacher.findOne({ email });
     const parent = await Parent.findOne({ email });
     if (teacher) {
